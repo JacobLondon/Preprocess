@@ -11,7 +11,7 @@ OUTPUT_DIR       = "__preprocessed__/"
 PREPROCESSOR     = "gcc -E"
 PREPROCESSOR_EXT = ".c"
 
-WHITESPACE = r"[\s\n\r\t]+"
+EXTRA_OUTPUT = r"#\s[\d]+"
 
 def preprocess_file(path: str):
     # get the name of the file regardless of its location
@@ -37,11 +37,6 @@ def preprocess_file(path: str):
     # add the include to the file, record first non-blank line
     with open(path, 'r') as original:
         contents = original.read()
-        lines = contents.splitlines(True)
-        i = 0
-        while re.match(WHITESPACE, lines[i]):
-            i += 1
-        firstline = lines[i]
     with open(tempfile, 'w') as temp:
         temp.write(INCLUDE + contents)
 
@@ -52,11 +47,14 @@ def preprocess_file(path: str):
     # remove extaneous preprocessor output
     with open(filename, 'r') as modified:
         contents = modified.read().splitlines(True)
+        index = 0
+        for line in contents:
+            if re.match(EXTRA_OUTPUT, line):
+                index += 1
+            else:
+                break
     with open(filename, 'w') as modified:
-        i = 0
-        while not contents[i] == firstline:
-            i += 1
-        modified.writelines(contents[i:])
+        modified.writelines(contents[index:])
     
 def preprocess_dir(path: str, extension: str):
 
