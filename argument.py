@@ -7,7 +7,7 @@ class Arguments:
     def __init__(self):
         pass
 
-def find(item):
+def find(item: str):
     if item in argv:
         return argv[argv.index(item) + 1]
     else:

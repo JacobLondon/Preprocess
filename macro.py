@@ -9,24 +9,29 @@ MACRO_FILE = "Macro.h"
 INCLUDE    = '#include "../' + MACRO_FILE + '"\n'
 OUTPUT_DIR = "__macro__/"
 PREPROCESSOR = "gcc -E"
+PREPROCESSOR_EXT = ".c"
 
 whitespace = r"[\s\n\r\t]+"
 
 def macro_file(path: str):
     # get the name of the file regardless of its location
-    if "/" in path:
-        filename = OUTPUT_DIR + path[path.rfind("/") + 1:]
-        tempfile = OUTPUT_DIR + MACRO + path[path.rfind("/") + 1:]
+    filename = OUTPUT_DIR
+    tempfile = OUTPUT_DIR + MACRO
+    if os.sep in path:
+        filename += path[path.rfind(os.sep) + 1:]
+        tempfile += path[path.rfind(os.sep) + 1:]
     else:
-        filename = OUTPUT_DIR + path
-        tempfile = OUTPUT_DIR + MACRO + path
+        filename += path
+        tempfile += path
+    # tempfile to a .c file
+    tempfile = os.path.splitext(tempfile)[0] + PREPROCESSOR_EXT
 
     # the path for the generated file to include the macro definitions
     includepath = ""
     for letter in path:
-        if letter == "/":
+        if letter == os.sep:
             includepath += ".."
-            includepath += "/"
+            includepath += os.sep
     includepath += OUTPUT_DIR
 
     # add the include to the file, record first non-blank line
@@ -54,6 +59,7 @@ def macro_file(path: str):
         modified.writelines(contents[i:])
     
 def macro_dir(path: str, extension: str):
+
     for filename in os.listdir(path):
         if filename.endswith(extension):
             macro_file(path + filename)
