@@ -4,19 +4,19 @@ import shutil
 import sys
 from argument import argparse, Arguments
 
-MACRO      = ".macro."
-MACRO_FILE = "Macro.h"
-INCLUDE    = '#include "../' + MACRO_FILE + '"\n'
-OUTPUT_DIR = "__macro__/"
-PREPROCESSOR = "gcc -E"
+PREPROCESS_TEMP  = ".preprocess."
+PREPROCESS_FILE  = "macros.h"
+INCLUDE          = '#include "../' + PREPROCESS_FILE + '"\n'
+OUTPUT_DIR       = "__preprocessed__/"
+PREPROCESSOR     = "gcc -E"
 PREPROCESSOR_EXT = ".c"
 
-whitespace = r"[\s\n\r\t]+"
+WHITESPACE = r"[\s\n\r\t]+"
 
-def macro_file(path: str):
+def preprocess_file(path: str):
     # get the name of the file regardless of its location
     filename = OUTPUT_DIR
-    tempfile = OUTPUT_DIR + MACRO
+    tempfile = OUTPUT_DIR + PREPROCESS_TEMP
     if os.sep in path:
         filename += path[path.rfind(os.sep) + 1:]
         tempfile += path[path.rfind(os.sep) + 1:]
@@ -26,7 +26,7 @@ def macro_file(path: str):
     # tempfile to a .c file
     tempfile = os.path.splitext(tempfile)[0] + PREPROCESSOR_EXT
 
-    # the path for the generated file to include the macro definitions
+    # the path for the generated file to include the preprocess definitions
     includepath = ""
     for letter in path:
         if letter == os.sep:
@@ -39,7 +39,7 @@ def macro_file(path: str):
         contents = original.read()
         lines = contents.splitlines(True)
         i = 0
-        while re.match(whitespace, lines[i]):
+        while re.match(WHITESPACE, lines[i]):
             i += 1
         firstline = lines[i]
     with open(tempfile, 'w') as temp:
@@ -58,13 +58,13 @@ def macro_file(path: str):
             i += 1
         modified.writelines(contents[i:])
     
-def macro_dir(path: str, extension: str):
+def preprocess_dir(path: str, extension: str):
 
     for filename in os.listdir(path):
         if filename.endswith(extension):
-            macro_file(path + filename)
+            preprocess_file(path + filename)
 
-def macro(arguments: Arguments):
+def preprocess(arguments: Arguments):
     
     # remove (with all files) the output directory, then make an empty one
     if os.path.exists(OUTPUT_DIR):
@@ -72,13 +72,13 @@ def macro(arguments: Arguments):
     os.makedirs(OUTPUT_DIR)
 
     if os.path.isdir(arguments.path):
-        macro_dir(arguments.path, arguments.extension)
+        preprocess_dir(arguments.path, arguments.extension)
     elif os.path.isfile(arguments.path):
-        macro_file(arguments.path)
+        preprocess_file(arguments.path)
     else:
-        print("Error: Invalid path", file=sys.stderr)
+        print(f"Error: Invalid path {arguments.path}", file=sys.stderr)
         exit(-1)
 
 if __name__ == '__main__':
     arguments = argparse()
-    macro(arguments)
+    preprocess(arguments)

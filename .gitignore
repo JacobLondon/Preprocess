@@ -1,6 +1,6 @@
 .DS_Store
 .vscode
 __pycache__
-__macro__
+__preprocessed__
 test/
-Macro.h
+macros.h
