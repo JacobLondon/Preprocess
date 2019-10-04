@@ -5,8 +5,8 @@ import sys
 from argument import argparse, Arguments
 
 PREPROCESS_TEMP  = ".preprocess."
-PREPROCESS_FILE  = "macros.h"
-INCLUDE          = '#include "../' + PREPROCESS_FILE + '"\n'
+MACRO_FILE       = "macros.h"
+INCLUDE          = '#include "../' + MACRO_FILE + '"\n'
 OUTPUT_DIR       = "__preprocessed__/"
 PREPROCESSOR     = "gcc -E"
 PREPROCESSOR_EXT = ".c"
